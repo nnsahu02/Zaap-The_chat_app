@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
     try {
@@ -21,18 +22,24 @@ export const sendMessage = async (req, res) => {
                 participants: [senderId, receiverId]
             });
         }
-
-        const newMessage = new Message({
+        const msgData = {
             senderId,
             receiverId,
             message
-        });
-
-        if (newMessage) {
-            conversation.messages.push(newMessage._id);
         }
-        Promise.all([newMessage.save(), conversation.save()]);
-        return res.status(201).json({ newMessage });
+
+        const createMsg = await Message.create(msgData);
+
+        if (createMsg) {
+            conversation.messages.push(createMsg._id);
+        }
+        Promise.all([conversation.save()]);
+
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit('newMessage', createMsg);
+        }
+        return res.status(201).json(createMsg);
     } catch (error) {
         console.error('Error in sendMessages: ', error);
         return res.status(500).json({ error: error.message });

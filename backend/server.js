@@ -7,8 +7,8 @@ import messageRoutes from "./routes/messages.routes.js";
 import userRoutes from "./routes/users.routes.js";
 
 import connectDB from "./db/mongo.connect.js";
+import { app, server } from "./socket/socket.js";
 
-const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
@@ -25,7 +25,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/messages", messageRoutes)
 app.use("/api/users", userRoutes)
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
     await connectDB(MONGO_URI)
     console.log(`Server is running on port ${PORT}🏃‍♂️`);
 });

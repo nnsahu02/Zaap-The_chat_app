@@ -1,13 +1,20 @@
+import { useAuthContext } from "../../context/AuthContext";
 import Conversations from "./Conversations";
 import LogoutButton from "./LogoutButton";
+import Profile from "./Profile";
 import SearchInput from "./SearchInput";
 
 const Sidebar = () => {
+	const { authUser } = useAuthContext();
+
+	console.log(authUser, "authUser");
+
 	return (
 		<div className='border-r border-slate-500 p-4 flex flex-col'>
 			<SearchInput />
 			<div className='divider px-3'></div>
 			<Conversations />
+			<Profile />
 			<LogoutButton />
 		</div>
 	);
