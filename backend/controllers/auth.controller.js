@@ -4,9 +4,9 @@ import generateTokenAndSetCookie from '../util/generateToken.js';
 
 export const signup = async (req, res) => {
     try {
-        const { fullName, userName, password, confirmPassword, gender } = req.body;
+        const { fullName, username, password, confirmPassword, gender } = req.body;
 
-        if (!fullName || !userName || !password || !confirmPassword || !gender) {
+        if (!fullName || !username || !password || !confirmPassword || !gender) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
@@ -14,20 +14,20 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: 'Passwords do not match' });
         }
 
-        const user = await User.findOne({ userName });
+        const user = await User.findOne({ username });
 
         if (user) {
-            return res.status(400).json({ message: 'This userName already exists' });
+            return res.status(400).json({ message: 'This username already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const boyProfile = `https://avatar.iran.liara.run/public/boy?username=${userName}`;
-        const girlProfile = `https://avatar.iran.liara.run/public/girl?username=${userName}`;
+        const boyProfile = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+        const girlProfile = `https://avatar.iran.liara.run/public/girl?username=${username}`;
 
         const newUser = new User({
             fullName,
-            userName,
+            username,
             password: hashedPassword,
             gender,
             profilePic: gender === "male" ? boyProfile : girlProfile
@@ -40,7 +40,7 @@ export const signup = async (req, res) => {
                 message: 'User registered successfully',
                 _id: newUser._id,
                 fullName: newUser.fullName,
-                userName: newUser.userName,
+                username: newUser.username,
                 gender: newUser.gender,
                 profilePic: newUser.profilePic
             });
@@ -56,12 +56,12 @@ export const signup = async (req, res) => {
 
 export const logIn = async (req, res) => {
     try {
-        const { userName, password } = req.body;
-        if (!userName || !password) {
+        const { username, password } = req.body;
+        if (!username || !password) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        const user = await User.findOne({ userName });
+        const user = await User.findOne({ username });
         const isPassCorrect = bcrypt.compare(password, user?.password || "");
         if (!user || !isPassCorrect) {
             return res.status(400).json({ message: 'Invalid credentials' });
@@ -72,7 +72,7 @@ export const logIn = async (req, res) => {
         return res.status(200).json({
             message: 'User logged in successfully',
             _id: user._id,
-            userName: user.userName,
+            username: user.username,
             fullName: user.fullName,
             profilePic: user.profilePic
         })
